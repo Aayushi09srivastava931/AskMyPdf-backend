@@ -309,7 +309,7 @@ app.post('/api/index-pdf', async (req, res) => {
     console.log("🔢 Configuring embedding model...");
     const embeddings = new GoogleGenerativeAIEmbeddings({
       apiKey: process.env.GEMINI_API_KEY,
-      model: 'text-embedding-004',
+      model: 'embedding-001',
     });
     console.log("✅ Embedding model configured");
 
@@ -450,7 +450,7 @@ app.post('/api/chat', async (req, res) => {
     // Create embeddings
     const embeddings = new GoogleGenerativeAIEmbeddings({
       apiKey: process.env.GEMINI_API_KEY,
-      model: 'text-embedding-004',
+      model: 'embedding-001',
     });
 
     const queryVector = await embeddings.embedQuery(queries);
