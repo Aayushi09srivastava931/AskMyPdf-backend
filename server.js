@@ -26,7 +26,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5173',
-    "https://ask-my-pdf-frontend-tau.vercel.app"
+    "https://ask-my-pdf-frontend-gau8ujc5s-aayushi-srivastavas-projects.vercel.app"
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
