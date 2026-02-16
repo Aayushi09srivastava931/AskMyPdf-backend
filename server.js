@@ -166,29 +166,19 @@ async function processBatchedDocuments(chunkedDocs, embeddings, pineconeIndex, b
     console.log(`📦 Processing batch ${currentBatch}/${totalBatches} (${batch.length} chunks)...`);
     
     try {
-      // Test embedding creation first
-      console.log('🔍 Testing embedding creation...');
-      const testText = batch[0].pageContent;
-      const testEmbedding = await embeddings.embedQuery(testText);
-      console.log('✅ Test embedding created, dimension:', testEmbedding.length);
-      
-      if (testEmbedding.length === 0) {
-        throw new Error('Embedding creation failed - returned empty vector');
-      }
-      
       await PineconeStore.fromDocuments(batch, embeddings, {
         pineconeIndex,
-        maxConcurrency: 3,
+        maxConcurrency: 3, // Reduced from 5 to avoid rate limits
       });
       
       console.log(`✅ Batch ${currentBatch}/${totalBatches} completed`);
       
+      // Small delay between batches to avoid rate limits
       if (i + batchSize < chunkedDocs.length) {
         await new Promise(resolve => setTimeout(resolve, 500));
       }
     } catch (batchError) {
       console.error(`❌ Error in batch ${currentBatch}:`, batchError.message);
-      console.error('Full error:', batchError);
       throw batchError;
     }
   }
@@ -309,7 +299,7 @@ app.post('/api/index-pdf', async (req, res) => {
     console.log("🔢 Configuring embedding model...");
     const embeddings = new GoogleGenerativeAIEmbeddings({
       apiKey: process.env.GEMINI_API_KEY,
-      model: 'embedding-001',
+      model: 'text-embedding-004',
     });
     console.log("✅ Embedding model configured");
 
@@ -450,7 +440,7 @@ app.post('/api/chat', async (req, res) => {
     // Create embeddings
     const embeddings = new GoogleGenerativeAIEmbeddings({
       apiKey: process.env.GEMINI_API_KEY,
-      model: 'embedding-001',
+      model: 'text-embedding-004',
     });
 
     const queryVector = await embeddings.embedQuery(queries);
