@@ -166,19 +166,29 @@ async function processBatchedDocuments(chunkedDocs, embeddings, pineconeIndex, b
     console.log(`📦 Processing batch ${currentBatch}/${totalBatches} (${batch.length} chunks)...`);
     
     try {
+      // Test embedding creation first
+      console.log('🔍 Testing embedding creation...');
+      const testText = batch[0].pageContent;
+      const testEmbedding = await embeddings.embedQuery(testText);
+      console.log('✅ Test embedding created, dimension:', testEmbedding.length);
+      
+      if (testEmbedding.length === 0) {
+        throw new Error('Embedding creation failed - returned empty vector');
+      }
+      
       await PineconeStore.fromDocuments(batch, embeddings, {
         pineconeIndex,
-        maxConcurrency: 3, // Reduced from 5 to avoid rate limits
+        maxConcurrency: 3,
       });
       
       console.log(`✅ Batch ${currentBatch}/${totalBatches} completed`);
       
-      // Small delay between batches to avoid rate limits
       if (i + batchSize < chunkedDocs.length) {
         await new Promise(resolve => setTimeout(resolve, 500));
       }
     } catch (batchError) {
       console.error(`❌ Error in batch ${currentBatch}:`, batchError.message);
+      console.error('Full error:', batchError);
       throw batchError;
     }
   }
